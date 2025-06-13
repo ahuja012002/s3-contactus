@@ -24,7 +24,7 @@ This step covers configuring cloudfront , setting up a domain to serve s3 static
 
 ### Step 3 : Adding contactus.html
 
-Please refer the contactus.html placed here in the repository. Just replace this API url with your url which we will create later in this tutorial :
+Please refer the contactus.html placed here in the repository inside s3file folder. Just replace this API url with your url which we will create later in this tutorial :
 Once this is done, we need to upload it into our S3 bucket.
 
 <img width="745" alt="Screenshot 2025-06-13 at 9 29 01 AM" src="https://github.com/user-attachments/assets/44aa9691-5464-406b-a625-ccb42fc7ad4c" />
