@@ -1,1 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .required-icon {
+            color: #e74c3c;
+            font-size: 12px;
+        }
+        .optional-icon {
+            color: #95a5a6;
+            font-size: 12px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        button:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        /* Loading spinner */
+        .spinner {
+            border: 2px solid transparent;
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Success message styling */
+        .success-message {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        .success-icon {
+            color: #3c763d;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Contact Us</h2>
+    <form id="contact-form">
+        <div class="form-group">
+            <label for="name-input">
+                Name
+                <span class="required-icon">*</span>
+            </label>
+            <input type="text" id="name-input" placeholder="Your name" required>
+        </div>
+        <div class="form-group">
+            <label for="phone-input">
+                Phone
+                <span class="optional-icon">(optional)</span>
+            </label>
+            <input type="tel" id="phone-input" placeholder="Your phone number">
+        </div>
+        <div class="form-group">
+            <label for="email-input">
+                Email
+                <span class="required-icon">*</span>
+            </label>
+            <input type="email" id="email-input" placeholder="Your email" required>
+        </div>
+        <div class="form-group">
+            <label for="description-input">
+                Message
+                <span class="required-icon">*</span>
+            </label>
+            <textarea id="description-input" rows="5" placeholder="Your message" required></textarea>
+        </div>
+        <button type="submit" id="submit-btn">
+            <span class="spinner" id="loading-spinner"></span>
+            <span id="button-text">Submit</span>
+        </button>
+    </form>
+    
+    <!-- Success message container -->
+    <div id="success-message" class="success-message">
+        <div class="success-icon">✓</div>
+        <h3>Thank You!</h3>
+        <p>Your message has been submitted successfully. We'll get back to you soon.</p>
+    </div>
 
+    <script>
+        function submitToAPI(e) {
+            e.preventDefault();
+            
+            // Disable submit button and show loading state
+            const submitBtn = $("#submit-btn");
+            const buttonText = $("#button-text");
+            const spinner = $("#loading-spinner");
+            
+            submitBtn.prop('disabled', true);
+            buttonText.text('Processing...');
+            spinner.show();
+            
+            var URL = "https://abc1234.execute-api.us-east-1.amazonaws.com/01/contact";
+
+            var Namere = /[A-Za-z]{1}[A-Za-z]/;
+            if (!Namere.test($("#name-input").val())) {
+                alert ("Name can not less than 2 char");
+                resetSubmitButton();
+                return;
+            }
+            
+            // Phone validation - only validate if phone number is provided
+            var phoneValue = $("#phone-input").val().trim();
+            if (phoneValue !== "") {
+                var mobilere = /[0-9]{10}/;
+                if (!mobilere.test(phoneValue)) {
+                    alert ("Please enter valid mobile number (10 digits)");
+                    resetSubmitButton();
+                    return;
+                }
+            }
+            
+            if ($("#email-input").val()=="") {
+                alert ("Please enter your email id");
+                resetSubmitButton();
+                return;
+            }
+
+            var reeamil = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,6})?$/;
+            if (!reeamil.test($("#email-input").val())) {
+                alert ("Please enter valid email address");
+                resetSubmitButton();
+                return;
+            }
+            
+            if ($("#description-input").val().trim() == "") {
+                alert ("Please enter your message");
+                resetSubmitButton();
+                return;
+            }
+
+            var name = $("#name-input").val();
+            var phone = $("#phone-input").val();
+            var email = $("#email-input").val();
+            var desc = $("#description-input").val();
+            var data = {
+                name : name,
+                phone : phone,
+                email : email,
+                desc : desc
+            };
+
+            $.ajax({
+                type: "POST",
+                url : "https://e4pp5vhiai.execute-api.us-east-1.amazonaws.com/dev/api/submitForm",
+                dataType: "json",
+                crossDomain: "true",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(data),
+
+                success: function () {
+                    // Clear the form
+                    document.getElementById("contact-form").reset();
+                    
+                    // Show success message with animation
+                    $("#success-message").fadeIn(300);
+                    
+                    // Hide success message after 5 seconds
+                    setTimeout(function() {
+                        $("#success-message").fadeOut(300);
+                    }, 5000);
+                    
+                    // Reset submit button
+                    resetSubmitButton();
+                },
+                error: function () {
+                    // Show an error message
+                    alert("Unsuccessful");
+                    
+                    // Reset submit button
+                    resetSubmitButton();
+                }
+            });
+        }
+        
+        function resetSubmitButton() {
+            const submitBtn = $("#submit-btn");
+            const buttonText = $("#button-text");
+            const spinner = $("#loading-spinner");
+            
+            submitBtn.prop('disabled', false);
+            buttonText.text('Submit');
+            spinner.hide();
+        }
+
+        // Connect the form submission to the submitToAPI function
+        $(document).ready(function() {
+            $("#contact-form").on('submit', submitToAPI);
+        });
+    </script>
+</body>
+</html>
