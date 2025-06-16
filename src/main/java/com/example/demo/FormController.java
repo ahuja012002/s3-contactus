@@ -44,13 +44,13 @@ public class FormController {
         // Send notification email to admin (optional)
         emailService.sendNotificationEmail(lead);
         
-        LeadEntity leadEntity = new LeadEntity();
-        
-        leadEntity.setDesc(lead.getDesc());
-        leadEntity.setEmail(lead.getEmail());
-        leadEntity.setName(lead.getName());
-        leadEntity.setPhone(lead.getPhone());
-        emailService.saveLead(leadEntity);
+        // Uncomment the below code once table is created in dynano db
+        //LeadEntity leadEntity = new LeadEntity();
+        //leadEntity.setDesc(lead.getDesc());
+        //leadEntity.setEmail(lead.getEmail());
+        //leadEntity.setName(lead.getName());
+        //leadEntity.setPhone(lead.getPhone());
+        //emailService.saveLead(leadEntity);
         FormResponse response = new FormResponse("success", "Thank you for your submission. A confirmation email has been sent.");
         return new ResponseEntity<>(response, HttpStatus.OK);
 
